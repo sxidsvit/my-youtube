@@ -14,4 +14,4 @@
 5. Работа с кнопкой "Далее"
 
 
-[_Посмотреть сайт_](http://git.lekua.in.ua/o-ozon/)
+[_Посмотреть сайт_](http://git.lekua.in.ua/my-youtube/)
