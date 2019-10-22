@@ -139,10 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const buttons = [...keyboard.querySelectorAll("button")].filter(
           elem => elem.style.visibility !== "hidden"
         );
-        //2 необязательное домашнее задание
+        // Клавиша пробел
         if (target === space) {
           SearchInput.value += " ";
-          //2 необязательное домашнее задание
+          // Клавиша backspace
         } else if (target === backspace) {
           SearchInput.value = SearchInput.value.slice(0, -1);
         } else if (contentButton === "en" || contentButton === "ru") {
@@ -318,7 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
       //запрос на видео с канала (канал передается по свойству chanelId)
 
       const renderSub = data => {
-        console.log('response.result:', data);
         let ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
         const { nextPageToken, items } = data;
@@ -367,7 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       const render = data => {
-        console.log('response.result:', data);
         const ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
         const { nextPageToken, items } = data;
