@@ -1,5 +1,9 @@
 "use strict";
+
+let nextPage = ''; //глобальная переменная
+
 document.addEventListener("DOMContentLoaded", () => {
+
   //search input keyboard
   {
     //!!!!!!!!!!!!!!!!!!!!!!!!
@@ -152,7 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
     closeKeyboard.addEventListener("click", toggleKeyBoard);
     keyboardButton.addEventListener("click", toggleKeyBoard);
     keyboard.addEventListener("click", typing);
-  }
+  } // end search input keyboard
+
   //rigth-side navigation menu
   {
     const burgerIcon = document.querySelector(".spinner");
@@ -176,8 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     });
-  }
-  //modal window
+  } // end rigth-side navigation menu
+
+  //modal youtuber
 
   const youtuber = () => {
     const youTuberItems = document.querySelectorAll("[data-youtuber]");
@@ -227,7 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
       youtuberContainer.textContent = "";
       window.removeEventListener("resize", sizeVideo);
     });
-  };
+  };  // end youtuber
+
+  //modal window
   {
     document.body.insertAdjacentHTML(
       "beforeend",
@@ -237,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
          </div> `
     );
     youtuber();
-  }
+  }  // end modal window
 
   // API
   {
@@ -276,7 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
       buttonAuth.addEventListener("click", () => {
         authenticate().then(loadClient);
       });
-    }
+    }  // end  авторизация
 
     //request
     {
@@ -286,14 +294,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const main = document.getElementById("yt_main");
       const subscriptions = document.getElementById("subscriptions");
       const searchForm = document.querySelector(".search-form");
+      const nextResult = document.getElementById("next_result");
 
-      //
+      // отображаем и скрываем кнопку Далее
+      const showButtonNext = () => nextResult.style.display = "block";
+      const hideButtonNext = () => nextResult.style.display = "none";
+
       const request = options =>
         gapi.client.youtube[options.method]
           .list(options)
           .then(response => {
-            console.log('response.result: ', response.result);
-            return response.result.items;
+            // console.log('response.result: ', response.result);
+            return response.result;
+            // return response.result.items;
           })
           .then(data =>
             options.method === "subscriptions" ? renderSub(data) : render(data)
@@ -349,11 +362,18 @@ document.addEventListener("DOMContentLoaded", () => {
       //
       //
       //
+
       const render = data => {
-        console.log('response.result.items:', data);
+        console.log('response.result:', data);
         const ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
-        data.forEach(item => {
+        const { nextPageToken, items } = data;
+        console.log('nextPageToken: ', nextPageToken);
+        console.log('items: ', items);
+        nextPage = nextPageToken;
+        sessionStorage.setItem('nextPage', nextPageToken);
+        console.log('render - nextPage: ', nextPage);
+        items.forEach(item => {
           try {
             const {
               id,
@@ -381,7 +401,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
         youtuber();
-      };
+        showButtonNext();
+        // return nextPageToken;
+      };  // end render()
 
       gloTube.addEventListener("click", () =>
         request({
@@ -389,9 +411,27 @@ document.addEventListener("DOMContentLoaded", () => {
           part: "snippet",
           channelId: "UCkwu9d355WAN63_2MvtUF4Q",
           order: "date",
-          maxResults: 6
+          maxResults: 10
         })
       );
+
+      nextResult.addEventListener("click", () => {
+        nextPage = sessionStorage.getItem('nextPage');
+        // console.log('nextResult - nextPage', nextPage);
+        const options =
+        {
+          method: "search",
+          part: "snippet",
+          channelId: "UCkwu9d355WAN63_2MvtUF4Q",
+          order: "date",
+          pageToken: `${nextPage}`,
+          maxResults: 10
+        };
+        sessionStorage.setItem('options', JSON.stringify(options));
+        console.dir('options: ', options);
+        request(options);
+      }
+      )
 
       trends.addEventListener("click", () => {
         request({
@@ -452,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // searchInput.value = "";
         searchForm.elements[0].value = "";
       });
-    }
-  }
-});
+    }  // end request
+
+  }  // end API
+});  // end DOMContentLoaded
