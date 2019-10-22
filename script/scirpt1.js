@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // отображаем и скрываем кнопку Далее
       const showButtonNext = () => nextResult.style.display = "block";
-      const hideButtonNext = () => nextResult.style.display = "none";
+      // const hideButtonNext = () => nextResult.style.display = "none";
 
       const request = options =>
         gapi.client.youtube[options.method]
@@ -317,14 +317,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       //запрос на видео с канала (канал передается по свойству chanelId)
 
-      //
-      //
-      //
       const renderSub = data => {
-        console.log('response.result.items:', data);
+        console.log('response.result:', data);
         const ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
-        data.forEach(item => {
+        const { nextPageToken, items } = data;
+        nextPage = nextPageToken;
+        sessionStorage.setItem('nextPage', nextPageToken);
+        items.forEach(item => {
           try {
             const {
               snippet: {
@@ -347,32 +347,32 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(err);
           }
         });
+        showButtonNext();
         ytWrapper = document.querySelectorAll(".yt").forEach(item => {
           item.addEventListener("click", () => {
-            request({
+            const options =
+            {
               method: "search",
               part: "snippet",
               channelId: item.dataset.youtuber,
               order: "date",
+              pageToken: '',
               maxResults: 6
-            });
+            }
+            sessionStorage.clear();
+            sessionStorage.setItem('options', JSON.stringify(options));
+            request(options);
           });
         });
       };
-      //
-      //
-      //
 
       const render = data => {
         console.log('response.result:', data);
         const ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
         const { nextPageToken, items } = data;
-        console.log('nextPageToken: ', nextPageToken);
-        console.log('items: ', items);
         nextPage = nextPageToken;
         sessionStorage.setItem('nextPage', nextPageToken);
-        console.log('render - nextPage: ', nextPage);
         items.forEach(item => {
           try {
             const {
@@ -402,76 +402,87 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         youtuber();
         showButtonNext();
-        // return nextPageToken;
       };  // end render()
 
-      gloTube.addEventListener("click", () =>
-        request({
-          method: "search",
-          part: "snippet",
-          channelId: "UCkwu9d355WAN63_2MvtUF4Q",
-          order: "date",
-          maxResults: 10
-        })
-      );
-
-      nextResult.addEventListener("click", () => {
-        nextPage = sessionStorage.getItem('nextPage');
-        // console.log('nextResult - nextPage', nextPage);
+      gloTube.addEventListener("click", () => {
         const options =
         {
           method: "search",
           part: "snippet",
           channelId: "UCkwu9d355WAN63_2MvtUF4Q",
           order: "date",
-          pageToken: `${nextPage}`,
-          maxResults: 10
-        };
+          pageToken: '',
+          maxResults: 6
+        }
+        sessionStorage.clear();
         sessionStorage.setItem('options', JSON.stringify(options));
-        console.dir('options: ', options);
+        request(options);
+      }
+      );
+
+      nextResult.addEventListener("click", () => {
+        const nextPage = sessionStorage.getItem('nextPage');
+        const options = JSON.parse(sessionStorage.getItem('options'));
+        options.pageToken = nextPage;
+        sessionStorage.setItem('options', JSON.stringify(options));
         request(options);
       }
       )
 
       trends.addEventListener("click", () => {
-        request({
+        const options = {
           method: "videos",
           part: "snippet",
           chart: "mostPopular",
           maxResults: 6,
           regionCode: "RU",
-          pageToken: "CAYQAA",
-        });
+          pageToken: '',
+        }
+        sessionStorage.clear();
+        sessionStorage.setItem('options', JSON.stringify(options));
+        request(options);
       });
 
       like.addEventListener("click", () => {
-        request({
+        const options = {
           method: "playlistItems",
           part: "snippet",
           playlistId: "LLkwu9d355WAN63_2MvtUF4Q",
-          maxResults: 6
-        });
+          maxResults: 6,
+          pageToken: '',
+        }
+        sessionStorage.clear();
+        sessionStorage.setItem('options', JSON.stringify(options));
+        request(options);
       });
 
-      //3 необязательное домашнее задание
       main.addEventListener("click", () => {
-        request({
+        const options = {
           method: "search",
           part: "snippet",
           channelId: "UCWXkvKfkwiO65olOv1RN1mA",
           order: "date",
-          maxResults: 6
-        });
+          maxResults: 6,
+          pageToken: '',
+        }
+        sessionStorage.clear();
+        sessionStorage.setItem('options', JSON.stringify(options));
+        request(options);
       });
-      //3 необязательное домашнее задание
+
       subscriptions.addEventListener("click", () => {
-        request({
+        const options = {
           method: "subscriptions",
           part: "snippet",
           mine: true,
-          maxResults: 6
-        });
+          maxResults: 6,
+          pageToken: '',
+        }
+        sessionStorage.clear();
+        sessionStorage.setItem('options', JSON.stringify(options));
+        request(options);
       });
+
       searchForm.addEventListener("submit", event => {
         event.preventDefault();
         const searchInput = searchForm.elements[0].value;
