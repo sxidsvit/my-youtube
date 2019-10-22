@@ -319,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const renderSub = data => {
         console.log('response.result:', data);
-        const ytWrapper = document.getElementById("yt-wrapper");
+        let ytWrapper = document.getElementById("yt-wrapper");
         ytWrapper.textContent = "";
         const { nextPageToken, items } = data;
         nextPage = nextPageToken;
